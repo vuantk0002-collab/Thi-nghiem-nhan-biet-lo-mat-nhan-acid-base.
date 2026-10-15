@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thí Nghiệm Nhận Biết NaOH, H2SO4, HCl</title>
+    <style>
+        :root {
+            --glass-color: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --highlight: rgba(255, 255, 255, 0.8);
+            --wood-dark: #3e2723;
+            --wood-light: #5d4037;
+            --wood-rack: #8d6e63;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141E30 0%, #243B55 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        h1 {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 900px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .lab-desk {
+            background: var(--wood-dark);
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-bottom: 15px solid #271411;
+            width: 100%;
+            max-width: 1000px;
+            position: relative;
+        }
+
+        .workspace {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            width: 100%;
+            gap: 20px;
+            margin-top: 50px; /* Chừa không gian cho ống bóp rút lên */
+        }
+
+        /* KHU VỰC GIẤY QUỲ */
+        .litmus-area {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px dashed rgba(255,255,255,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .litmus-tray {
+            display: flex;
+            gap: 15px;
+        }
+
+        .litmus-paper-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .litmus-paper {
+            width: 25px;
+            height: 70px;
+            background: #d4a5d4; /* Màu quỳ tím tự nhiên */
+            border-radius: 3px;
+            box-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: background-color 0.8s ease, transform 0.2s;
+            position: relative;
+        }
+        
+        .litmus-paper:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .litmus-label { font-size: 0.8rem; color: #ccc; }
+
+        /* KHAY ĐỰNG ỐNG NGHIỆM */
+        .rack-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .test-tube-rack {
+            background: var(--wood-rack);
+            padding: 20px 30px;
+            border-radius: 10px;
+            display: flex;
+            gap: 40px;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.4), 0 10px 15px rgba(0,0,0,0.6);
+            border: 2px solid var(--wood-light);
+            border-bottom: 8px solid var(--wood-dark);
+            position: relative;
+            z-index: 1;
+        }
+
+        .tube-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .test-tube {
+            width: 35px;
+            height: 160px;
+            background: var(--glass-color);
+            border: 2px solid var(--glass-border);
+            border-top: 1px solid rgba(255,255,255,0.8);
+            border-radius: 4px 4px 20px 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset -5px 0 15px rgba(255,255,255,0.3), 5px 5px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* Miệng ống nghiệm */
+        .test-tube::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; height: 6px;
+            border: 2px solid rgba(255,255,255,0.9);
+            border-radius: 50%;
+        }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 55%;
+            background: rgba(230, 240, 255, 0.4); /* Trong suốt hơi xanh ngọc */
+            transition: height 0.5s;
+            border-top: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .precipitate {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: white;
+            opacity: 0;
+            transition: height 2s ease, opacity 1s ease;
+            box-shadow: inset 0 5px 10px rgba(0,0,0,0.1);
+        }
+
+        .tube-label {
+            margin-top: 15px;
+            background: white;
+            color: black;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px dashed #333;
+            text-align: center;
+            width: 80px;
+        }
+
+        /* ỐNG BÓP (PIPETTE) */
+        .dropper {
+            position: absolute;
+            top: -35px; /* Nằm nhô ra ngoài */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 190px;
+            cursor: pointer;
+            z-index: 3;
+            transition: transform 0.4s ease, filter 0.3s;
+        }
+
+        .dropper.selected {
+            transform: translate(-50%, -100px) scale(1.1);
+            filter: drop-shadow(0 0 8px #f1c40f);
+            z-index: 10;
+        }
+
+        .dropper-bulb {
+            width: 22px;
+            height: 35px;
+            background: #c0392b; /* Núm cao su đỏ */
+            border-radius: 12px 12px 4px 4px;
+            margin-left: -4px; /* Căn giữa so với thân */
+            box-shadow: inset -3px 0 5px rgba(0,0,0,0.3);
+        }
+
+        .dropper-stem {
+            width: 6px;
+            height: 155px;
+            background: rgba(255,255,255,0.7);
+            margin: 0 auto;
+            border-radius: 0 0 3px 3px;
+            border: 1px solid rgba(255,255,255,0.9);
+            box-shadow: inset -1px 0 2px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        /* Hiệu ứng có chất lỏng trong ống bóp khi được chọn */
+        .dropper.selected .dropper-stem::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 1px;
+            width: 4px;
+            height: 20px;
+            background: rgba(200, 220, 255, 0.8);
+            border-radius: 2px;
+        }
+
+        /* LỌ THUỐC THỬ BaCl2 */
+        .reagent-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bottle-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bottle {
+            width: 60px;
+            height: 100px;
+            background: var(--glass-color);
+            border: 3px solid var(--glass-border);
+            border-radius: 15px 15px 5px 5px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset -5px 0 15px rgba(255,255,255,0.3);
+        }
+        .bottle::before { /* Cổ chai */
+            content: '';
+            position: absolute;
+            top: -15px; left: 15px; right: 15px; height: 15px;
+            border-left: 3px solid var(--glass-border);
+            border-right: 3px solid var(--glass-border);
+            background: var(--glass-color);
+        }
+        
+        .bottle .liquid { height: 70%; }
+        
+        .bottle-label {
+            margin-top: 15px;
+            background: #ecf0f1;
+            color: #2c3e50;
+            padding: 5px 15px;
+            border-radius: 3px;
+            font-weight: bold;
+            border: 2px solid #34495e;
+        }
+
+        /* HIỆU ỨNG NHỎ GIỌT */
+        .drop-anim {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 1;
+            transition: top 0.4s cubic-bezier(0.5, 0, 1, 0.5), opacity 0.2s;
+        }
+
+        /* BẢNG ĐIỀU KHIỂN & TRẠNG THÁI */
+        #status-board {
+            margin-top: 30px;
+            background: #1abc9c;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border: 2px solid #16a085;
+            min-height: 25px;
+            transition: background-color 0.3s;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .btn-reset {
+            background: #e74c3c;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .btn-reset:hover {
+            transform: scale(1.05);
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧪 Phòng Thí Nghiệm Ảo</h1>
+    
+    <div class="instructions">
+        <strong>Quy trình nhận biết:</strong> 3 ống nghiệm mất nhãn chứa <b>NaOH, H<sub>2</sub>SO<sub>4</sub>, HCl</b>.<br>
+        1. Nhấp vào <b>Ống bóp (Pipette)</b> trong các ống nghiệm mất nhãn để rút dung dịch, sau đó click vào <b>Giấy Quỳ Tím</b> để thử (Xanh = Base, Đỏ = Acid).<br>
+        2. Lấy ống bóp từ ống nghiệm <b>BaCl<sub>2</sub></b> nhỏ vào các ống Acid. Nếu có <b>kết tủa trắng</b> xuất hiện thì đó là H<sub>2</sub>SO<sub>4</sub>.
+    </div>
+
+    <div class="lab-desk">
+        <div class="workspace">
+            
+            <!-- Khu vực 1: Khay giấy quỳ -->
+            <div class="litmus-area">
+                <div style="font-weight: bold; margin-bottom: 5px;">Giấy Quỳ Tím</div>
+                <div class="litmus-tray" id="litmus-tray">
+                    <!-- Sẽ render qua JS -->
+                </div>
+            </div>
+
+            <!-- Khu vực 2: Khay đựng 3 ống nghiệm -->
+            <div class="rack-area">
+                <div class="test-tube-rack" id="test-tube-rack">
+                    <!-- Sẽ render qua JS -->
+                </div>
+            </div>
+
+            <!-- Khu vực 3: Hóa chất nhận biết BaCl2 -->
+            <div class="reagent-area">
+                <div class="tube-wrapper">
+                    <div class="dropper" id="dropper-bacl2" onclick="selectDropper('bacl2')">
+                        <div class="dropper-bulb"></div>
+                        <div class="dropper-stem"></div>
+                    </div>
+                    <div class="test-tube">
+                        <div class="liquid" style="background: rgba(200, 200, 200, 0.4); height: 70%;"></div>
+                    </div>
+                    <div class="tube-label">Dung dịch<br>BaCl<sub>2</sub></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="status-board">Đã xáo trộn 3 ống nghiệm. Hãy chọn ống bóp để bắt đầu!</div>
+        
+        <div class="controls">
+            <button class="btn-reset" onclick="initExperiment()">🔄 Bắt Đầu Lại</button>
+        </div>
+    </div>
+
+    <script>
+        const chemicals = ['NaOH', 'H2SO4', 'HCl'];
+        let shuffledChemicals = [];
+        let activeDropper = null; // Lưu ID của ống bóp đang cầm: 'tube-0', 'tube-1', 'tube-2', 'bacl2', hoặc null
+
+        // Tạo âm thanh (Web Audio API) mô phỏng tiếng nước nhỏ giọt
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playDropSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.type = 'sine';
+            // Tạo tiếng "tí tách"
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1500, audioCtx.currentTime + 0.05);
+            gainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // Xáo trộn mảng
+        function shuffleArray(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        // Khởi tạo bàn thí nghiệm
+        function initExperiment() {
+            shuffledChemicals = shuffleArray([...chemicals]);
+            activeDropper = null;
+            
+            // Khởi tạo Giấy Quỳ
+            const litmusTray = document.getElementById('litmus-tray');
+            litmusTray.innerHTML = '';
+            for(let i = 0; i < 3; i++) {
+                litmusTray.innerHTML += `
+                    <div class="litmus-paper-container">
+                        <div class="litmus-paper" id="litmus-paper-${i}" onclick="applyOnLitmus(${i})"></div>
+                        <div class="litmus-label">Mẫu ${i+1}</div>
+                    </div>
+                `;
+            }
+
+            // Khởi tạo Ống Nghiệm và Ống Bóp
+            const rack = document.getElementById('test-tube-rack');
+            rack.innerHTML = '';
+            shuffledChemicals.forEach((chem, index) => {
+                rack.innerHTML += `
+                    <div class="tube-wrapper">
+                        <!-- Ống bóp (Pipette) -->
+                        <div class="dropper" id="dropper-tube-${index}" onclick="selectDropper('tube-${index}')">
+                            <div class="dropper-bulb"></div>
+                            <div class="dropper-stem"></div>
+                        </div>
+                        <!-- Ống nghiệm -->
+                        <div class="test-tube" onclick="applyOnTube(${index})">
+                            <div class="liquid" id="liquid-${index}"></div>
+                            <div class="precipitate" id="precip-${index}"></div>
+                        </div>
+                        <div class="tube-label" id="label-${index}">Mất Nhãn ${index + 1}</div>
+                    </div>
+                `;
+            });
+
+            updateStatus("Đã xáo trộn ống nghiệm. Hãy click vào ống bóp của lọ mất nhãn để hút mẫu thử.", "#1abc9c");
+            updateDropperUI();
+        }
+
+        // Xử lý khi click vào Ống bóp
+        function selectDropper(id) {
+            if (activeDropper === id) {
+                // Click lại chính nó -> Cất đi
+                activeDropper = null;
+                updateStatus("Đã cất ống bóp. Hãy chọn một ống bóp khác.", "#1abc9c");
+            } else {
+                // Cầm ống bóp lên
+                activeDropper = id;
+                if (id.startsWith('tube')) {
+                    const tubeNum = parseInt(id.split('-')[1]) + 1;
+                    updateStatus(`Đang lấy mẫu ở ống nghiệm số ${tubeNum}. Hãy click vào một mảnh Giấy Quỳ Tím để thử.`, "#2980b9");
+                } else if (id === 'bacl2') {
+                    updateStatus(`Đang lấy dung dịch BaCl2. Hãy click vào Ống Nghiệm để nhỏ vào.`, "#2980b9");
+                }
+            }
+            updateDropperUI();
+        }
+
+        // Cập nhật giao diện ống bóp đang lơ lửng
+        function updateDropperUI() {
+            // Xóa class selected của tất cả
+            document.querySelectorAll('.dropper').forEach(d => d.classList.remove('selected'));
+            // Thêm class selected cho cái đang được chọn
+            if (activeDropper) {
+                document.getElementById(`dropper-${activeDropper}`).classList.add('selected');
+            }
+        }
+
+        // Tạo hoạt ảnh giọt nước rơi
+        function createDropAnimation(targetElement, onComplete) {
+            playDropSound();
+            const drop = document.createElement('div');
+            drop.className = 'drop-anim';
+            
+            // Lấy tọa độ của đích đến
+            const targetRect = targetElement.getBoundingClientRect();
+            // Đặt giọt nước lơ lửng trên đích đến khoảng 30px
+            drop.style.left = (targetRect.left + targetRect.width / 2 - 4) + 'px';
+            drop.style.top = (targetRect.top - 40) + 'px';
+            
+            document.body.appendChild(drop);
+
+            // Buộc reflow để chạy animation
+            void drop.offsetWidth; 
+            
+            // Rơi xuống vị trí giữa đích
+            drop.style.top = (targetRect.top + targetRect.height / 3) + 'px';
+            
+            setTimeout(() => {
+                drop.style.opacity = '0';
+                setTimeout(() => {
+                    drop.remove();
+                    onComplete();
+                }, 200);
+            }, 400); // Khớp với transition time
+        }
+
+        // Nhỏ vào Giấy Quỳ
+        function applyOnLitmus(paperIndex) {
+            if (!activeDropper) {
+                updateStatus("⚠️ Vui lòng click để rút Ống bóp từ một ống nghiệm trước!", "#e74c3c");
+                return;
+            }
+            if (activeDropper === 'bacl2') {
+                updateStatus("⚠️ BaCl2 không dùng để thử quỳ tím. Hãy dùng mẫu từ 3 ống nghiệm mất nhãn.", "#e67e22");
+                return;
+            }
+
+            const tubeIndex = parseInt(activeDropper.split('-')[1]);
+            const realChem = shuffledChemicals[tubeIndex];
+            const paper = document.getElementById(`litmus-paper-${paperIndex}`);
+            const label = document.getElementById(`label-${tubeIndex}`);
+            const liquid = document.getElementById(`liquid-${tubeIndex}`);
+
+            createDropAnimation(paper, () => {
+                if (realChem === 'NaOH') {
+                    paper.style.backgroundColor = '#3498db'; // Quỳ hóa Xanh
+                    label.innerHTML = 'NaOH<br><small>(Base)</small>';
+                    label.style.backgroundColor = '#3498db';
+                    label.style.color = 'white';
+                    updateStatus(`Giấy quỳ số ${paperIndex+1} hóa Xanh! ➞ Ống số ${tubeIndex+1} là NaOH.`, "#27ae60");
+                } else {
+                    paper.style.backgroundColor = '#e74c3c'; // Quỳ hóa Đỏ
+                    if(label.innerText.includes("Mất Nhãn")) {
+                        label.innerHTML = 'Acid (?)<br><small>(H<sub>2</sub>SO<sub>4</sub>/HCl)</small>';
+                        label.style.backgroundColor = '#e74c3c';
+                        label.style.color = 'white';
+                    }
+                    updateStatus(`Giấy quỳ số ${paperIndex+1} hóa Đỏ! ➞ Ống số ${tubeIndex+1} là Acid.`, "#e67e22");
+                }
+                
+                // Trả ống bóp về chỗ cũ
+                activeDropper = null;
+                updateDropperUI();
+                
+                // Giảm xíu lượng nước trong ống để tạo cảm giác chân thực
+                const currentHeight = parseFloat(liquid.style.height || 55);
+                liquid.style.height = (currentHeight - 2) + '%';
+            });
+        }
+
+        // Nhỏ vào Ống Nghiệm
+        function applyOnTube(tubeIndex) {
+            if (activeDropper !== 'bacl2') {
+                if (activeDropper) {
+                    updateStatus("⚠️ Cầm nhầm ống! Hãy cất ống bóp cũ đi hoặc nhỏ mẫu thử lên giấy quỳ.", "#e74c3c");
+                } else {
+                    updateStatus("⚠️ Để nhỏ BaCl2 vào đây, bạn hãy click vào ống bóp ở ống nghiệm BaCl2 trước.", "#e74c3c");
+                }
+                return;
+            }
+
+            const realChem = shuffledChemicals[tubeIndex];
+            const tubeDOM = document.getElementById(`liquid-${tubeIndex}`); // Lấy phần chất lỏng làm mốc
+            const precipDOM = document.getElementById(`precip-${tubeIndex}`);
+            const label = document.getElementById(`label-${tubeIndex}`);
+
+            createDropAnimation(tubeDOM, () => {
+                if (realChem === 'H2SO4') {
+                    precipDOM.style.height = '45%';
+                    precipDOM.style.opacity = '1';
+                    label.innerHTML = 'H<sub>2</sub>SO<sub>4</sub>';
+                    label.style.backgroundColor = '#f1c40f';
+                    label.style.color = 'black';
+                    updateStatus(`✨ Xuất hiện kết tủa trắng BaSO4. Ống ${tubeIndex+1} chính là Sulfuric acid (H2SO4)!`, "#27ae60");
+                } else if (realChem === 'HCl') {
+                    label.innerHTML = 'HCl';
+                    label.style.backgroundColor = '#2ecc71';
+                    label.style.color = 'black';
+                    updateStatus(`Không có hiện tượng gì. Ống ${tubeIndex+1} chính là Chlohidric acid (HCl)!`, "#27ae60");
+                } else {
+                    updateStatus(`Đó là NaOH, không cần thử BaCl2 vào base trong bài này.`, "#8e44ad");
+                }
+
+                // Cất ống bóp BaCl2
+                activeDropper = null;
+                updateDropperUI();
+                
+                const currentHeight = parseFloat(tubeDOM.style.height || 55);
+                tubeDOM.style.height = (currentHeight + 3) + '%';
+            });
+        }
+
+        // Hàm cập nhật chữ trên bảng hiển thị
+        function updateStatus(msg, color) {
+            const board = document.getElementById('status-board');
+            board.innerHTML = msg;
+            board.style.backgroundColor = color;
+            board.style.borderColor = color;
+        }
+
+        // Khởi động ngay
+        initExperiment();
+    </script>
+</body>
+</html>
